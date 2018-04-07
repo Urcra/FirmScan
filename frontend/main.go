@@ -12,14 +12,17 @@ import (
 	"strings"
 )
 
+var firmwareQueue *TaskQueue
+
 var pages *template.Template
 
 /* Constant paths */
 var basePath string
 var templatesPath string
 
+
 func init() {
-	basePath = "./frontend/web"
+	basePath = "./web"
 	templatesPath = basePath + "/templates/*"
 
 	var err error
@@ -27,6 +30,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	firmwareQueue = newTaskQueue("broker", "xl65x7jhacv", "localhost", "5672", "firmware")
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +64,9 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		defer f2.Close()
 
 		f2.Write(buf.Bytes())
+
+		// Put firmware image into task queue
+		firmwareQueue.publish(buf.Bytes())
 
 		http.Redirect(w, r, "/reports/"+hex.EncodeToString(bs), 301)
 	}
