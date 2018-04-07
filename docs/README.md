@@ -53,7 +53,7 @@ The differnt severities that should be in the JSON are as follows:
 # Analysis
 General:
 
-
+http://pmja.com.pl/iotsr.pdf (IoTInspector report)
 https://github.com/SmeegeSec/HashTag
 
 
