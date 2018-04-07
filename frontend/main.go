@@ -18,7 +18,6 @@ var firmwareQueue *TaskQueue
 
 var pages *template.Template
 
-
 type analysisFindings struct {
 	Severity string `json:"severity"`
 	File     string `json:"file"`
@@ -33,6 +32,7 @@ type analysisItem struct {
 }
 
 type analysisReport struct {
+	Name         string
 	Hash         string         `json:"hash"`
 	Log          string         `json:"log"`
 	Error        string         `json:"error"`
@@ -67,8 +67,6 @@ type analysisReport struct {
 /* Constant paths */
 var basePath string
 var templatesPath string
-
-
 
 func init() {
 	basePath = "./web"
@@ -114,9 +112,12 @@ func upload(w http.ResponseWriter, r *http.Request) {
 
 		f1, _ := os.Create("./analysis/" + hex.EncodeToString(bs))
 		f2, _ := os.Create("./binaries/" + hex.EncodeToString(bs))
+		f3, _ := os.Create("./names/" + hex.EncodeToString(bs))
+		f3.WriteString(handler.Filename)
 
 		defer f1.Close()
 		defer f2.Close()
+		defer f3.Close()
 
 		f2.Write(buf.Bytes())
 
@@ -145,11 +146,15 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 			// Analysis is complete
 			fmt.Println("Accessed completed analysis" + hash)
 
-			frep, ferr := ioutil.ReadFile("./analysis/" + hash)
-			check(ferr)
+			frep, frerr := ioutil.ReadFile("./analysis/" + hash)
+			fname, fnerr := ioutil.ReadFile("./names/" + hash)
+			check(frerr)
+			check(fnerr)
 			rawreport := frep
 			jsonreport := analysisReport{}
 			json.Unmarshal([]byte(rawreport), &jsonreport)
+
+			jsonreport.Name = string(fname)
 
 			fmt.Println(jsonreport)
 
