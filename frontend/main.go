@@ -14,9 +14,16 @@ import (
 
 var pages *template.Template
 
+/* Constant paths */
+var basePath string
+var templatesPath string
+
 func init() {
+	basePath = "./frontend/web"
+	templatesPath = basePath + "/templates/*"
+
 	var err error
-	pages, err = template.ParseGlob("./web/templates/*")
+	pages, err = template.ParseGlob(templatesPath)
 	if err != nil {
 		panic(err)
 	}
@@ -91,7 +98,7 @@ func main() {
 	fmt.Println("Starting go web server on port 8080")
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/reports/", getReport)
-	http.Handle("/", http.FileServer(http.Dir("./web")))
+	http.Handle("/", http.FileServer(http.Dir(basePath)))
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
