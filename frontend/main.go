@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -16,10 +18,55 @@ var taskQueue *TaskQueue
 
 var pages *template.Template
 
+type analysisFindings struct {
+	Severity string `json:"severity"`
+	File     string `json:"file"`
+	Text     string `json:"text"`
+}
+
+type analysisItem struct {
+	Catagory         string             `json:"catagory"`
+	Name             string             `json:"name"`
+	Language         string             `json:"language"`
+	AnalysisFindings []analysisFindings `json:"findings"`
+}
+
+type analysisReport struct {
+	Name         string
+	Hash         string         `json:"hash"`
+	Log          string         `json:"log"`
+	Error        string         `json:"error"`
+	AnalysisItem []analysisItem `json:"analysis"`
+}
+
+/*
+
+{
+	hash: "112233445566778899aa...",
+	log: "[INFO] .... \n [ERROR] junk....",
+	error: false,
+	analysis: [
+	  {
+		 category: "linting"
+		 name: "binary imports (objdump)",
+		 language: "binary",
+		 findings: [
+	   {
+			 severity: "warning",
+			 file: "./server",
+			 text: "import of gets(2) detected"
+			}
+			...
+		 ]
+	  }
+	  ...
+	]
+  }
+*/
+
 /* Constant paths */
 var basePath string
 var templatesPath string
-
 
 func init() {
 	basePath = "./web"
@@ -36,6 +83,12 @@ func init() {
 
 	// Start report collector
 	go reportCollector(taskQueue)
+}
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
@@ -63,9 +116,12 @@ func upload(w http.ResponseWriter, r *http.Request) {
 
 		f1, _ := os.Create("./analysis/" + hex.EncodeToString(bs))
 		f2, _ := os.Create("./binaries/" + hex.EncodeToString(bs))
+		f3, _ := os.Create("./names/" + hex.EncodeToString(bs))
+		f3.WriteString(handler.Filename)
 
 		defer f1.Close()
 		defer f2.Close()
+		defer f3.Close()
 
 		f2.Write(buf.Bytes())
 
@@ -94,7 +150,19 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 			// Analysis is complete
 			fmt.Println("Accessed completed analysis" + hash)
 
-			err = pages.ExecuteTemplate(w, "report.html", nil)
+			frep, frerr := ioutil.ReadFile("./analysis/" + hash)
+			fname, fnerr := ioutil.ReadFile("./names/" + hash)
+			check(frerr)
+			check(fnerr)
+			rawreport := frep
+			jsonreport := analysisReport{}
+			json.Unmarshal([]byte(rawreport), &jsonreport)
+
+			jsonreport.Name = string(fname)
+
+			fmt.Println(jsonreport)
+
+			err = pages.ExecuteTemplate(w, "report.html", jsonreport)
 			fmt.Println(err)
 
 		}

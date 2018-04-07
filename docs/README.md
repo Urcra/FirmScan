@@ -41,4 +41,26 @@ username : `broker` password : `xl65x7jhacv`
 }
 ```
 # Analysis
+General:
 
+
+https://github.com/SmeegeSec/HashTag
+
+
+PHP:
+
+
+https://github.com/exakat/php-static-analysis-tools
+https://github.com/emanuil/php-reaper
+
+
+JS:
+
+
+https://github.com/ajinabraham/NodeJsScan
+
+
+C:
+
+
+https://www.dwheeler.com/flawfinder/
