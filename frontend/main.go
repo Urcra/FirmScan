@@ -14,7 +14,10 @@ import (
 	"strings"
 )
 
+var firmwareQueue *TaskQueue
+
 var pages *template.Template
+
 
 type analysisFindings struct {
 	Severity string `json:"severity"`
@@ -60,12 +63,24 @@ type analysisReport struct {
 	]
   }
 */
+
+/* Constant paths */
+var basePath string
+var templatesPath string
+
+
+
 func init() {
+	basePath = "./web"
+	templatesPath = basePath + "/templates/*"
+
 	var err error
-	pages, err = template.ParseGlob("./web/templates/*")
+	pages, err = template.ParseGlob(templatesPath)
 	if err != nil {
 		panic(err)
 	}
+
+	firmwareQueue = newTaskQueue("broker", "xl65x7jhacv", "localhost", "5672", "firmware")
 }
 
 func check(e error) {
@@ -104,6 +119,9 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		defer f2.Close()
 
 		f2.Write(buf.Bytes())
+
+		// Put firmware image into task queue
+		firmwareQueue.publish(buf.Bytes())
 
 		http.Redirect(w, r, "/reports/"+hex.EncodeToString(bs), 301)
 	}
@@ -151,7 +169,7 @@ func main() {
 	fmt.Println("Starting go web server on port 8080")
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/reports/", getReport)
-	http.Handle("/", http.FileServer(http.Dir("./web")))
+	http.Handle("/", http.FileServer(http.Dir(basePath)))
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
