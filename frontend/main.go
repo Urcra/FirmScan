@@ -135,7 +135,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 
 			fmt.Println(jsonreport)
 
-			err = pages.ExecuteTemplate(w, "report.html", nil)
+			err = pages.ExecuteTemplate(w, "report.html", jsonreport)
 			fmt.Println(err)
 
 		}

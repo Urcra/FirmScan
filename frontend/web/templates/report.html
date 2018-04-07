@@ -38,6 +38,22 @@
         <div class="row">
           <div class="col-lg-12 text-center">
             <h1 class="mt-5">Result of analysis</h1>
+
+            <h1>{{.Hash}}<h1>
+              <ul>
+                  {{range .AnalysisItem}}
+                    <li>{{.Catagory}}</li>
+                    <li>{{.Name}}</li>
+                    <li>{{.Language}}</li>
+                    <ul>
+                    {{range .AnalysisFindings}}
+                      <li>{{.Severity}}</li>
+                      <li>{{.File}}</li>
+                      <li>{{.Text}}</li>
+                    {{end}}
+                    </ul>
+                  {{end}}
+              </ul>
           </div>
         </div>
       </div>
