@@ -1,4 +1,3 @@
-docker pull rabbitmq:3
 docker run -d --hostname broker \
     -e RABBITMQ_ERLANG_COOKIE=6fghihH162 \
     -e RABBITMQ_DEFAULT_USER=broker \
