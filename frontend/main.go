@@ -174,6 +174,17 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+
+func reportCollector(taskQueue *TaskQueue) {
+	jsonreport := analysisReport{}
+
+	for msg := range taskQueue.consume {
+		json.Unmarshal(msg.Body, &jsonreport)
+		err := ioutil.WriteFile("./analysis/" + jsonreport.Hash, msg.Body, 0644)
+		fmt.Println(err)
+	}
+}
+
 func main() {
 	fmt.Println("Starting go web server on port 8080")
 	http.HandleFunc("/upload", upload)
