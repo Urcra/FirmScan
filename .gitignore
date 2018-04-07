@@ -1,1 +1,5 @@
 frontend/uploads/*
+frontend/binaries/*
+frontend/reports/*
+frontend/analysis/*
+frontend/main
