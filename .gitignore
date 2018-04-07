@@ -3,6 +3,7 @@ frontend/uploads/*
 frontend/binaries/*
 frontend/reports/*
 frontend/analysis/*
+frontend/names/*
 frontend/main
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
