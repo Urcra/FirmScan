@@ -22,7 +22,7 @@ ANALYSIS  = './analysis'
 RABBIT_HOST = 'localhost'
 RABBIT_PORT = 5672
 RABBIT_USER = 'broker'
-RABBIT_PORT = 'xl65x7jhacv'
+RABBIT_PASS = 'xl65x7jhacv'
 
 def fingerprint(s):
     return sha256(s).hexdigest()
@@ -119,5 +119,5 @@ if __name__ == '__main__':
     channel.queue_declare(queue=QUEUE_IN)
     channel.queue_declare(queue=QUEUE_OUT)
     channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(worker.callback, queue=QUEUE)
+    channel.basic_consume(worker.callback, queue=QUEUE_IN)
     channel.start_consuming()
