@@ -68,7 +68,6 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 		if os.IsNotExist(err) || fa.Size() == 0 {
 			// Analysis does not exist or file is empty
 			fmt.Println("Accessed in progress analysis" + hash)
-			fmt.Println("Size of %d", fa.Size())
 			err = pages.ExecuteTemplate(w, "waiting.html", nil)
 			fmt.Println(err)
 
