@@ -25,6 +25,8 @@ RUN (cd sasquatch && ./build.sh)
 
 ## ADD ADDITIONAL UTILITIES HERE ##
 
+RUN apt-get install php
+
 # useful for debugging
 
 RUN apt-get install vim -y

@@ -40,11 +40,42 @@ username : `broker` password : `xl65x7jhacv`
   ]
 }
 ```
-# Analysis
 
+## Severity
+
+The differnt severities that should be in the JSON are as follows:
+
+* `"info"` : For informational findings. Colored blue on the frontend
+* `"warning"`: For findings that are bad but not critical. Colored yellow on the frontend
+* `"danger"` : For critical findings. Colored red on the frontend
+
+
+# Analysis
+General:
+
+http://pmja.com.pl/iotsr.pdf (IoTInspector report)
+
+https://github.com/SmeegeSec/HashTag
+
+
+PHP:
+
+
+https://github.com/exakat/php-static-analysis-tools
+https://github.com/emanuil/php-reaper
+
+
+JS:
+
+
+https://github.com/ajinabraham/NodeJsScan
+
+
+C:
 
 
 
 # Images
 
 http://www.bluesound.com/wp-content/uploads/2018/04/V510_usb_stick_2.16.9.zip
+https://www.dwheeler.com/flawfinder/

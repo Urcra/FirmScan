@@ -14,10 +14,9 @@ import (
 	"strings"
 )
 
-var firmwareQueue *TaskQueue
+var taskQueue *TaskQueue
 
 var pages *template.Template
-
 
 type analysisFindings struct {
 	Severity string `json:"severity"`
@@ -33,6 +32,7 @@ type analysisItem struct {
 }
 
 type analysisReport struct {
+	Name         string
 	Hash         string         `json:"hash"`
 	Log          string         `json:"log"`
 	Error        string         `json:"error"`
@@ -68,8 +68,6 @@ type analysisReport struct {
 var basePath string
 var templatesPath string
 
-
-
 func init() {
 	basePath = "./web"
 	templatesPath = basePath + "/templates/*"
@@ -80,7 +78,11 @@ func init() {
 		panic(err)
 	}
 
-	firmwareQueue = newTaskQueue("broker", "xl65x7jhacv", "localhost", "5672", "firmware")
+	// Initialize task queue
+	taskQueue = newTaskQueue("broker", "xl65x7jhacv", "localhost", "5672", "firmware", "reports")
+
+	// Start report collector
+	go reportCollector(taskQueue)
 }
 
 func check(e error) {
@@ -114,14 +116,17 @@ func upload(w http.ResponseWriter, r *http.Request) {
 
 		f1, _ := os.Create("./analysis/" + hex.EncodeToString(bs))
 		f2, _ := os.Create("./binaries/" + hex.EncodeToString(bs))
+		f3, _ := os.Create("./names/" + hex.EncodeToString(bs))
+		f3.WriteString(handler.Filename)
 
 		defer f1.Close()
 		defer f2.Close()
+		defer f3.Close()
 
 		f2.Write(buf.Bytes())
 
 		// Put firmware image into task queue
-		firmwareQueue.publish(buf.Bytes())
+		taskQueue.publish <- buf.Bytes()
 
 		http.Redirect(w, r, "/reports/"+hex.EncodeToString(bs), 301)
 	}
@@ -145,11 +150,15 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 			// Analysis is complete
 			fmt.Println("Accessed completed analysis" + hash)
 
-			frep, ferr := ioutil.ReadFile("./analysis/" + hash)
-			check(ferr)
+			frep, frerr := ioutil.ReadFile("./analysis/" + hash)
+			fname, fnerr := ioutil.ReadFile("./names/" + hash)
+			check(frerr)
+			check(fnerr)
 			rawreport := frep
 			jsonreport := analysisReport{}
 			json.Unmarshal([]byte(rawreport), &jsonreport)
+
+			jsonreport.Name = string(fname)
 
 			fmt.Println(jsonreport)
 
@@ -162,6 +171,17 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 		//fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
 
 		fmt.Println(hash)
+	}
+}
+
+
+func reportCollector(taskQueue *TaskQueue) {
+	jsonreport := analysisReport{}
+
+	for msg := range taskQueue.consume {
+		json.Unmarshal(msg.Body, &jsonreport)
+		err := ioutil.WriteFile("./analysis/" + jsonreport.Hash, msg.Body, 0644)
+		fmt.Println(err)
 	}
 }
 

@@ -1,0 +1,21 @@
+<table class="table table-light" style="background-color: #fdfdfe; table-layout: fixed; word-wrap: break-word;">
+    <thead>
+        <tr>
+        <th scope="col">File</th>
+        <th scope="col">Issue</th>
+        <th scope="col">Severity</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        {{range $index2, $element2 := .AnalysisFindings}}
+        <tr class="bg-{{.Severity}}">
+        
+        <td>{{.File}}</td>
+        <td style="font-size: 16px;">{{.Text}}</td>
+        <td>{{.Severity}}</td>
+        </tr>
+        
+        {{end}}
+    </tbody>
+</table>
