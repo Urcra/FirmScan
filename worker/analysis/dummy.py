@@ -13,4 +13,4 @@ struct = {
     ]
 }
 
-print json.dumps(struct)
+print(json.dumps(struct))

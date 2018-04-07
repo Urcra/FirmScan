@@ -15,17 +15,19 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-QUEUE_IN  = 'firmware'
+QUEUE_IN = 'firmware'
 QUEUE_OUT = 'reports'
-ANALYSIS  = './analysis'
+ANALYSIS = './analysis'
 
 RABBIT_HOST = 'localhost'
 RABBIT_PORT = 5672
 RABBIT_USER = 'broker'
 RABBIT_PASS = 'xl65x7jhacv'
 
+
 def fingerprint(s):
     return sha256(s).hexdigest()
+
 
 ### Handle Incoming Jobs ###
 
@@ -41,8 +43,8 @@ class Worker:
         ## Create Directory For Analysis ##
 
         path = tempfile.mkdtemp(
-            prefix = 'temp.',
-            suffix = '.analysis'
+            prefix='temp.',
+            suffix='.analysis'
         )
 
         logger.info('Created temp directory in %s' % path)
@@ -92,16 +94,16 @@ class Worker:
 
         # Acknowledge
 
-        ch.basic_ack(delivery_tag = method.delivery_tag)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 if __name__ == '__main__':
-
     ### Connect To RabbitMQ ###
 
     logger.info('Connecting to RabbitMQ')
 
     credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
-    parameters  = pika.ConnectionParameters(
+    parameters = pika.ConnectionParameters(
         RABBIT_HOST,
         RABBIT_PORT,
         '/',
@@ -109,8 +111,8 @@ if __name__ == '__main__':
     )
 
     connection = pika.BlockingConnection(parameters)
-    channel    = connection.channel()
-    worker     = Worker(channel)
+    channel = connection.channel()
+    worker = Worker(channel)
 
     ## Start Server
 

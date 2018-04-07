@@ -21,7 +21,7 @@ RUN (cd binwalk && python setup.py install)
 
 ## ADD ADDITIONAL UTILITIES HERE ##
 
-RUN apt-get install php
+RUN apt-get install php -y
 
 # configure server files
 
