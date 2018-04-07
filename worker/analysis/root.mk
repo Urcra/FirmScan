@@ -1,6 +1,5 @@
-
 unpack.flag:
-	binwalk
+	binwalk -Mre ./firmware.bin
 	echo "ok" >> unpack.flag
 
 dummy: unpack.flag
