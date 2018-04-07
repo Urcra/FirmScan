@@ -1,0 +1,34 @@
+<h1>{{.Name}}<h1>
+  <ul>
+    <div class="card">
+        <div class="card-header" id="headingHash">
+            <h5 class="mb-0">
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseHash" aria-expanded="false" aria-controls="collapseHash">
+                        Sha256 hash
+                </button>
+                </h5>
+            </div>
+            <div id="collapseHash" class="collapse" aria-labelledby="headingHash" data-parent="#accordion">
+                <div class="card-body">
+                    {{.Hash}}
+                </div>
+            </div>
+        </div>
+      {{range $index, $results := .AnalysisItem}}
+        <div class="card">
+          <div class="card-header" id="heading{{$index}}">
+            <h5 class="mb-0">
+              <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{$index}}" aria-expanded="true" aria-controls="collapse{{$index}}">    
+                {{.Catagory}} analysis of {{.Name}} <span class="badge badge-primary">{{.ILength}}</span><span class="badge badge-warning">{{.WLength}}</span><span class="badge badge-danger">{{.DLength}}</span>
+              </button>
+            </h5>
+          </div>
+          <div id="collapse{{$index}}" class="collapse show" aria-labelledby="heading{{$index}}" data-parent="#accordion">
+            <div class="card-body">
+                After running {{.Name}} the following potential issues were found
+                {{template "findingsdisplay.tmpl" .}}
+            </div>
+          </div>
+        </div>
+      {{end}}
+  </ul>

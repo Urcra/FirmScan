@@ -82,9 +82,13 @@ class Worker:
 
         ## Cleanup After Analysis ##
 
+        logger.info('Cleaning up')
+
         distutils.dir_util.remove_tree(path)
 
         ## Add Result to Queue
+
+        logger.info('Passing results')
 
         self.channel.basic_publish(
             exchange='',
