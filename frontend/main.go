@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-var firmwareQueue *TaskQueue
+var taskQueue *TaskQueue
 
 var pages *template.Template
 
@@ -78,7 +78,11 @@ func init() {
 		panic(err)
 	}
 
-	firmwareQueue = newTaskQueue("broker", "xl65x7jhacv", "localhost", "5672", "firmware")
+	// Initialize task queue
+	taskQueue = newTaskQueue("broker", "xl65x7jhacv", "localhost", "5672", "firmware", "reports")
+
+	// Start report collector
+	go reportCollector(taskQueue)
 }
 
 func check(e error) {
@@ -122,7 +126,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		f2.Write(buf.Bytes())
 
 		// Put firmware image into task queue
-		firmwareQueue.publish(buf.Bytes())
+		taskQueue.publish <- buf.Bytes()
 
 		http.Redirect(w, r, "/reports/"+hex.EncodeToString(bs), 301)
 	}
