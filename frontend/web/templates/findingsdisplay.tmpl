@@ -1,4 +1,4 @@
-<table class="table table-light">
+<table class="table table-light" style="background-color: #fdfdfe; table-layout: fixed; word-wrap: break-word;">
     <thead>
         <tr>
         <th scope="col">File</th>
@@ -9,53 +9,13 @@
     <tbody>
         
         {{range $index2, $element2 := .AnalysisFindings}}
-        Test
-        
-        <tr class="bg-primary">
+        <tr class="bg-{{.Severity}}">
         
         <td>{{.File}}</td>
-        <td>{{.Text}}</td>
+        <td style="font-size: 16px;">{{.Text}}</td>
         <td>{{.Severity}}</td>
         </tr>
         
         {{end}}
-
-        
-        <tr>
-                
-        <td>SomeFile</td>
-        <td>Somemessage</td>
-        <td>Minor</td>
-        </tr>
-
-        <tr class="bg-success">
-        
-                
-        <td>SomeFile</td>
-        <td>Somemessage</td>
-        <td>Success?</td>
-        </tr>
-
-
-        <tr class="bg-info">
-        
-        <td>SomeFile</td>
-        <td>Somemessage</td>
-        <td>Info</td>
-        </tr>
-
-        <tr class="bg-warning">
-        
-        <td>SomeFile</td>
-        <td>Somemessage</td>
-        <td>Warning</td>
-        </tr>
-
-        <tr class="bg-danger">
-        
-        <td>SomeFile</td>
-        <td>Somemessage</td>
-        <td>Danger</td>
-        </tr>
     </tbody>
 </table>
