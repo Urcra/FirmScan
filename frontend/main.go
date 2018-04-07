@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,6 +27,13 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		defer f.Close()
 		defer file.Close()
 
+		h := sha1.New()
+
+		h.Write(buf.Bytes())
+
+		bs := h.Sum(nil)
+
+		http.Redirect(w, r, "/reports/"+hex.EncodeToString(bs), 301)
 		fmt.Fprintf(w, "%v", handler.Header)
 	}
 }
