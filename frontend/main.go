@@ -25,9 +25,12 @@ type analysisFindings struct {
 }
 
 type analysisItem struct {
-	Catagory         string             `json:"catagory"`
-	Name             string             `json:"name"`
-	Language         string             `json:"language"`
+	Catagory         string `json:"catagory"`
+	Name             string `json:"name"`
+	Language         string `json:"language"`
+	ILength          int
+	WLength          int
+	DLength          int
 	AnalysisFindings []analysisFindings `json:"findings"`
 }
 
@@ -159,6 +162,22 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 			json.Unmarshal([]byte(rawreport), &jsonreport)
 
 			jsonreport.Name = string(fname)
+			for i, item := range jsonreport.AnalysisItem {
+				jsonreport.AnalysisItem[i].ILength = 0
+				jsonreport.AnalysisItem[i].WLength = 0
+				jsonreport.AnalysisItem[i].DLength = 0
+				for _, finding := range item.AnalysisFindings {
+					if finding.Severity == "warning" {
+						jsonreport.AnalysisItem[i].WLength++
+					}
+					if finding.Severity == "danger" {
+						jsonreport.AnalysisItem[i].DLength++
+					}
+					if finding.Severity == "info" {
+						jsonreport.AnalysisItem[i].ILength++
+					}
+				}
+			}
 
 			fmt.Println(jsonreport)
 
@@ -174,13 +193,12 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func reportCollector(taskQueue *TaskQueue) {
 	jsonreport := analysisReport{}
 
 	for msg := range taskQueue.consume {
 		json.Unmarshal(msg.Body, &jsonreport)
-		err := ioutil.WriteFile("./analysis/" + jsonreport.Hash, msg.Body, 0644)
+		err := ioutil.WriteFile("./analysis/"+jsonreport.Hash, msg.Body, 0644)
 		fmt.Println(err)
 	}
 }
