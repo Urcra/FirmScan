@@ -1,6 +1,6 @@
 # Misc
 
-sha256 is used for generating fingerprints of firmware images
+`sha256` is used for generating fingerprints of firmware images
 
 # RabbitMQ
 
@@ -12,12 +12,12 @@ reports : for relaying firmware reports back to the frontend
 
 ## Credentials
 
-username : broker password : xl65x7jhacv
+username : `broker` password : `xl65x7jhacv`
 
 # JSON Schemas
 
 ## Report
-
+```
 {
   hash: "112233445566778899aa...",
   log: "[INFO] .... \n [ERROR] junk....",
@@ -39,6 +39,6 @@ username : broker password : xl65x7jhacv
     ...
   ]
 }
-
+```
 # Analysis
 
