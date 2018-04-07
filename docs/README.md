@@ -45,9 +45,9 @@ username : `broker` password : `xl65x7jhacv`
 
 The differnt severities that should be in the JSON are as follows:
 
-* `"info"` : For informational findings
-* `"warning"`: For findings that are bad but not critical
-* `"danger"` : For critical findings
+* `"info"` : For informational findings. Colored blue on the frontend
+* `"warning"`: For findings that are bad but not critical. Colored yellow on the frontend
+* `"danger"` : For critical findings. Colored red on the frontend
 
 
 # Analysis
