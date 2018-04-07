@@ -40,6 +40,16 @@ username : `broker` password : `xl65x7jhacv`
   ]
 }
 ```
+
+## Severity
+
+The differnt severities that should be in the JSON are as follows:
+
+* `"info"` : For informational findings
+* `"warning"`: For findings that are bad but not critical
+* `"danger"` : For critical findings
+
+
 # Analysis
 General:
 
