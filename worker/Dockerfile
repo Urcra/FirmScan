@@ -29,7 +29,7 @@ WORKDIR /home/worker
 RUN chown worker /home/worker
 USER worker
 
-COPY analysis .
+COPY analysis  ./analysis
 COPY server.py .
 
 # run server
