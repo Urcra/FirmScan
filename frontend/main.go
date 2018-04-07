@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -16,9 +18,56 @@ var firmwareQueue *TaskQueue
 
 var pages *template.Template
 
+
+type analysisFindings struct {
+	Severity string `json:"severity"`
+	File     string `json:"file"`
+	Text     string `json:"text"`
+}
+
+type analysisItem struct {
+	Catagory         string             `json:"catagory"`
+	Name             string             `json:"name"`
+	Language         string             `json:"language"`
+	AnalysisFindings []analysisFindings `json:"findings"`
+}
+
+type analysisReport struct {
+	Hash         string         `json:"hash"`
+	Log          string         `json:"log"`
+	Error        string         `json:"error"`
+	AnalysisItem []analysisItem `json:"analysis"`
+}
+
+/*
+
+{
+	hash: "112233445566778899aa...",
+	log: "[INFO] .... \n [ERROR] junk....",
+	error: false,
+	analysis: [
+	  {
+		 category: "linting"
+		 name: "binary imports (objdump)",
+		 language: "binary",
+		 findings: [
+	   {
+			 severity: "warning",
+			 file: "./server",
+			 text: "import of gets(2) detected"
+			}
+			...
+		 ]
+	  }
+	  ...
+	]
+  }
+*/
+
 /* Constant paths */
 var basePath string
 var templatesPath string
+
 
 
 func init() {
@@ -32,6 +81,12 @@ func init() {
 	}
 
 	firmwareQueue = newTaskQueue("broker", "xl65x7jhacv", "localhost", "5672", "firmware")
+}
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +145,15 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 			// Analysis is complete
 			fmt.Println("Accessed completed analysis" + hash)
 
-			err = pages.ExecuteTemplate(w, "report.html", nil)
+			frep, ferr := ioutil.ReadFile("./analysis/" + hash)
+			check(ferr)
+			rawreport := frep
+			jsonreport := analysisReport{}
+			json.Unmarshal([]byte(rawreport), &jsonreport)
+
+			fmt.Println(jsonreport)
+
+			err = pages.ExecuteTemplate(w, "report.html", jsonreport)
 			fmt.Println(err)
 
 		}
