@@ -21,6 +21,8 @@ RUN (cd binwalk && python setup.py install)
 
 ## ADD ADDITIONAL UTILITIES HERE ##
 
+RUN apt-get install php
+
 # configure server files
 
 RUN useradd worker

@@ -10,6 +10,7 @@ frontend/main
 
 # User-specific stuff
 main
+venv
 .idea
 .idea/**/workspace.xml
 .idea/**/tasks.xml
