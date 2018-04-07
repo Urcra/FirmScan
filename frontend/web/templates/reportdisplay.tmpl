@@ -1,0 +1,21 @@
+<h1>{{.Name}}<h1>
+<h1>{{.Hash}}<h1>
+  <ul>
+      {{range $index, $results := .AnalysisItem}}
+        <div class="card">
+          <div class="card-header" id="heading{{$index}}">
+            <h5 class="mb-0">
+              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse{{$index}}" aria-expanded="false" aria-controls="collapse{{$index}}">
+                    {{.Catagory}} analysis of {{.Name}}
+              </button>
+            </h5>
+          </div>
+          <div id="collapse{{$index}}" class="collapse" aria-labelledby="heading{{$index}}" data-parent="#accordion">
+            <div class="card-body">
+                After running {{.Name}} the following potential issues were found
+                {{template "findingsdisplay.tmpl" .}}
+            </div>
+          </div>
+        </div>
+      {{end}}
+  </ul>

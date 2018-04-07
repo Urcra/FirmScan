@@ -1,0 +1,61 @@
+<table class="table table-light">
+    <thead>
+        <tr>
+        <th scope="col">File</th>
+        <th scope="col">Issue</th>
+        <th scope="col">Severity</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        {{range $index2, $element2 := .AnalysisFindings}}
+        Test
+        
+        <tr class="bg-primary">
+        
+        <td>{{.File}}</td>
+        <td>{{.Text}}</td>
+        <td>{{.Severity}}</td>
+        </tr>
+        
+        {{end}}
+
+        
+        <tr>
+                
+        <td>SomeFile</td>
+        <td>Somemessage</td>
+        <td>Minor</td>
+        </tr>
+
+        <tr class="bg-success">
+        
+                
+        <td>SomeFile</td>
+        <td>Somemessage</td>
+        <td>Success?</td>
+        </tr>
+
+
+        <tr class="bg-info">
+        
+        <td>SomeFile</td>
+        <td>Somemessage</td>
+        <td>Info</td>
+        </tr>
+
+        <tr class="bg-warning">
+        
+        <td>SomeFile</td>
+        <td>Somemessage</td>
+        <td>Warning</td>
+        </tr>
+
+        <tr class="bg-danger">
+        
+        <td>SomeFile</td>
+        <td>Somemessage</td>
+        <td>Danger</td>
+        </tr>
+    </tbody>
+</table>
