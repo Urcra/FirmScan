@@ -6,4 +6,4 @@ docker run -d --hostname broker \
     -p 5671:5671 \
     -p 5672:5672 \
     -p 25672:25672 \
-    --name rabbit rabbitmq
+    --name rabbit rabbitmq:3
