@@ -23,6 +23,10 @@
           padding-top: 56px;
         }
       }
+
+      .grey {
+        color: #808080
+      }
     </style>
 
   </head>
@@ -62,17 +66,22 @@
       <div class="row">
         <div class="col-lg-12 text-center">
           <h1 class="mt-5">FirmScan</h1>
-          <p class="lead">An automated vulnerbility scanner for firmware images.</p>
-          <p class="lead">Upload your firmware and start inpsecting</p>
+          <p class="lead grey">An automated vulnerbility scanner for firmware images.</p>
+          <p class="lead grey">Upload your firmware and start inpsecting</p>
 
-          <form enctype="multipart/form-data" action="http://127.0.0.1:8080/upload" method="post">
-            <input type="file" name="uploadfile" />
-            <input type="hidden" name="token" value="{{.}}"/>
-            <input type="submit" value="upload" />
+          <form enctype="multipart/form-data" action="/upload" method="post">
+          
+            <div class="custom-file" id="customFile" style="max-width: 40%">
+              <input id="exampleInputFile" class="custom-file-input" type="file" name="uploadfile" onchange="form.submit()" required />
+              <label class="custom-file-label" for="exampleInputFile">
+                 Select file...
+              </label>
+            </div>
 
+          </form>
             <br>
             <br>
-            <p class="lead">Built for Copenhacks 2018</p>
+            <p class="lead">Built at Copenhacks 2018</p>
         </div>
       </div>
     </div>
