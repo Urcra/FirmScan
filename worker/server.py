@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import os
+import re
+#import sys
 import pika
 import json
 import glob
@@ -10,6 +12,8 @@ import subprocess
 import distutils.dir_util
 
 from hashlib import sha256
+
+
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -24,11 +28,6 @@ RABBIT_PORT = 5672
 RABBIT_USER = 'broker'
 RABBIT_PASS = 'xl65x7jhacv'
 
-
-def fingerprint(s):
-    return sha256(s).hexdigest()
-
-
 ### Handle Incoming Jobs ###
 
 class Worker:
@@ -36,40 +35,36 @@ class Worker:
         self.channel = channel
 
     def callback(self, ch, method, properties, body):
-        fp = fingerprint(body)
+        bodyHash = sha256(body).hexdigest()
+        logger.info('Received new firmware job (%s)' % bodyHash)
 
-        logger.info('Received new firmware job (%s)' % fp)
-
-        ## Create Directory For Analysis ##
-
+        # Create directory for analysis
         path = tempfile.mkdtemp(
             prefix='temp.',
             suffix='.analysis'
         )
-
         logger.info('Created temp directory in %s' % path)
 
         distutils.dir_util.copy_tree(ANALYSIS, path)
 
-        firm = os.path.join(path, 'firmware.bin')
+        firm = os.path.join(path, 'firmware.bin') 
 
         with open(firm, 'w') as f:
             f.write(body)
 
-        ## Run Analysis ##
+        # Run analysis
+        log = subprocess.Popen('binwalk -e -M -d 20 %s' % firm, shell=True).wait()
+        #print("binwalk: " + log)
 
-        log = subprocess.Popen('make -C %s -f root.mk analysis' % path, shell=True).wait()
-
-        logger.info('Analysis complete, collecting findings')
-
-        ## Extract Results ##
+        analyser = Analyser(os.path.join(path, "_firmware.bin.extracted"))
 
         result = {
-            'hash': fp,
-            'log': log,
+            'hash': bodyHash,
+            'log': str(log),
             'error': False,
-            'analysis': []
+            'analysis': analyser.generate_report()
         }
+        logger.info('Analysis complete')
 
         for obj in glob.glob(os.path.join(path, '*.anal')):
             with open(obj, 'r') as f:
@@ -80,14 +75,13 @@ class Worker:
                     json.loads(raw)
                 )
 
-        ## Cleanup After Analysis ##
+        # Cleanup after analysis
 
         logger.info('Cleaning up')
 
         distutils.dir_util.remove_tree(path)
 
-        ## Add Result to Queue
-
+        # Add result to queue
         logger.info('Passing results')
 
         self.channel.basic_publish(
@@ -97,8 +91,115 @@ class Worker:
         )
 
         # Acknowledge
-
         ch.basic_ack(delivery_tag=method.delivery_tag)
+        
+
+class Analyser:
+    def __init__(self, path):
+        self.path = path
+
+    def generate_report(self):
+        return [self.key_files(), self.key_strings()]
+
+
+    def key_files(self):
+        patterns =[
+            '.ssh/.authorized_keys',
+            'etc/shadow'
+        ]
+
+        files    = 0
+        findings = []
+
+        for dirpath, dirnames, filenames in os.walk(self.path):
+            for name in filenames:
+                files += 1
+                path   = os.path.join(dirpath, name)
+                for pattern in patterns:
+                    if pattern in path:
+                        print 'found possible hardcoded key in %s' % path
+                        with open(path, 'r') as f:
+                            text = 'Hardcoded key detected (possible backdoor)\n\n'
+                            findings.append({
+                                'severity': 'warning',
+                                'file': path,
+                                'text': text + f.read(),
+                            })
+
+        res = {
+            'catagory': 'key material',
+            'name': 'key file scan',
+            'language': '',
+            'findings': findings
+        }
+
+        print 'processed %d files' % files
+
+        return res
+
+
+    def key_strings(self):
+        private_keys = map(re.compile, [
+            '-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----',
+            '-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY-----',
+            '-----BEGIN ENCRYPTED PRIVATE KEY-----.*-----END ENCRYPTED PRIVATE KEY-----'
+        ])
+
+        public_keys = map(re.compile, [
+            '-----BEGIN RSA PUBLIC KEY-----.*-----END RSA PUBLIC KEY-----.*',
+            '-----BEGIN PUBLIC KEY-----.*-----END PUBLIC KEY-----'
+        ])
+
+        files    = 0
+        findings = []
+
+        for dirpath, dirnames, filenames in os.walk(self.path):
+            for name in filenames:
+                path = os.path.join(dirpath, name)
+
+                if not os.path.isfile(path):
+                    continue
+
+                with open(path, 'r') as f:
+                    raw = f.read()
+
+                files += 1
+
+                for rex in private_keys:
+                    for key in rex.findall(raw):
+                        print 'private key found in %s' % path
+                        text = ''
+                        text += 'Private key detected\n\n'
+                        text += key
+                        findings.append({
+                            'severity': 'danger',
+                            'file': path,
+                            'text': text
+                        })
+
+                for rex in public_keys:
+                    for key in rex.findall(raw):
+                        print 'public key found in %s' % path
+                        text = ''
+                        text += 'Public key detected\n\n'
+                        text += key
+                        findings.append({
+                            'severity': 'info',
+                            'file': path,
+                            'text': text
+                        })
+
+
+        res = {
+            'catagory': 'key material',
+            'name': 'key string scan',
+            'language': '',
+            'findings': findings
+        }
+
+        print 'processed %d files' % files
+
+        return res
 
 
 if __name__ == '__main__':

@@ -49,6 +49,6 @@ COPY --chown=worker server.py .
 
 # test
 
-COPY firmware2.bin ./analysis/firmware.bin
+#COPY firmware2.bin ./analysis/firmware.bin
 
 CMD ["python2", "./server.py"]
