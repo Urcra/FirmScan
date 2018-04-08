@@ -149,7 +149,7 @@ class Analyser:
                             text = 'Hardcoded key detected (possible backdoor)\n\n'
                             findings.append({
                                 'severity': 'warning',
-                                'file': path,
+                                'file': "/".join(path[path.find('/_firmware.bin.extracted'):].strip("/").split('/')[1:]),
                                 'text': text + f.read(),
                             })
 
@@ -202,7 +202,7 @@ class Analyser:
                         text += key
                         findings.append({
                             'severity': 'danger',
-                            'file': path,
+                            'file': "/".join(path[path.find('/_firmware.bin.extracted'):].strip("/").split('/')[1:]),
                             'text': text
                         })
 
