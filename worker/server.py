@@ -2,7 +2,6 @@
 
 import os
 import re
-#import sys
 import pika
 import json
 import glob
@@ -53,8 +52,7 @@ class Worker:
             f.write(body)
 
         # Run analysis
-        log = subprocess.Popen('binwalk -e -M -d 20 %s' % firm, shell=True).wait()
-        #print("binwalk: " + log)
+        log = subprocess.Popen('binwalk -e -M -d 20 --directory=%s %s' % (path, firm), shell=True).wait()
 
         analyser = Analyser(os.path.join(path, "_firmware.bin.extracted"))
 
@@ -76,7 +74,6 @@ class Worker:
                 )
 
         # Cleanup after analysis
-
         logger.info('Cleaning up')
 
         distutils.dir_util.remove_tree(path)
@@ -89,13 +86,14 @@ class Worker:
             routing_key=QUEUE_OUT,
             body=json.dumps(result)
         )
-
+        
         # Acknowledge
         ch.basic_ack(delivery_tag=method.delivery_tag)
         
 
 class Analyser:
     def __init__(self, path):
+        logger.info("Created analyser with path " + path)
         self.path = path
 
     def generate_report(self):
@@ -103,6 +101,8 @@ class Analyser:
 
 
     def key_files(self):
+        logger.info("Starting key_files")
+
         patterns =[
             '.ssh/.authorized_keys',
             'etc/shadow'
@@ -139,16 +139,18 @@ class Analyser:
 
 
     def key_strings(self):
-        private_keys = map(re.compile, [
-            '-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----',
-            '-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY-----',
-            '-----BEGIN ENCRYPTED PRIVATE KEY-----.*-----END ENCRYPTED PRIVATE KEY-----'
-        ])
+        logger.info("Starting key_strings")
 
-        public_keys = map(re.compile, [
-            '-----BEGIN RSA PUBLIC KEY-----.*-----END RSA PUBLIC KEY-----.*',
-            '-----BEGIN PUBLIC KEY-----.*-----END PUBLIC KEY-----'
-        ])
+        private_keys = [
+            re.compile('-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----', re.DOTALL),
+            re.compile('-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY-----', re.DOTALL),
+            re.compile('-----BEGIN ENCRYPTED PRIVATE KEY-----.*-----END ENCRYPTED PRIVATE KEY-----', re.DOTALL)
+        ]
+
+        public_keys = [
+            re.compile('-----BEGIN RSA PUBLIC KEY-----.*-----END RSA PUBLIC KEY-----', re.DOTALL),
+            re.compile('-----BEGIN PUBLIC KEY-----.*-----END PUBLIC KEY-----', re.DOTALL)
+        ]
 
         files    = 0
         findings = []
@@ -167,7 +169,7 @@ class Analyser:
 
                 for rex in private_keys:
                     for key in rex.findall(raw):
-                        print 'private key found in %s' % path
+                        #print 'private key found in %s' % path
                         text = ''
                         text += 'Private key detected\n\n'
                         text += key
@@ -179,7 +181,7 @@ class Analyser:
 
                 for rex in public_keys:
                     for key in rex.findall(raw):
-                        print 'public key found in %s' % path
+                        #print 'public key found in %s' % path
                         text = ''
                         text += 'Public key detected\n\n'
                         text += key
