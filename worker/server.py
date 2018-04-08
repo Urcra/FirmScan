@@ -97,7 +97,30 @@ class Analyser:
         self.path = path
 
     def generate_report(self):
-        return [self.key_files(), self.key_strings()]#, self.check_php()]
+        dummy_report = {
+            'category': 'Dummy example',
+            'name': 'Dummy example',
+            'language': 'PHP',
+            'findings': [
+                {
+                    "severity": "info",
+                    "file": "./info_file",
+                    "text": "Info example"
+                },
+                {
+                    "severity": "warning",
+                    "file": "./warning_file",
+                    "text": "Warning example"
+                },
+                {
+                    "severity": "danger",
+                    "file": "./danger_file",
+                    "text": "Danger example"
+                }
+            ]
+        }
+
+        return [dummy_report, self.key_files(), self.key_strings()]#, self.check_php()]
 
     def check_php(self):
         struct = {
