@@ -55,8 +55,6 @@ The different severities that should be in the JSON are as follows:
 # Potential analysis modules
 General:
 
-http://pmja.com.pl/iotsr.pdf (IoTInspector report)
-
 https://github.com/SmeegeSec/HashTag
 
 
@@ -84,9 +82,13 @@ http://firmware.re/
 
 https://www.iot-inspector.com/
 
+http://pmja.com.pl/iotsr.pdf (IoTInspector report)
+
 https://firmalyzer.com/
 
 https://github.com/mre/awesome-static-analysis
+
+https://en.wikipedia.org/wiki/List_of_tools_for_static_code_analysis
 
 # Example firmware images
 
