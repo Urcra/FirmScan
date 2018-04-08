@@ -1,7 +1,3 @@
-# Misc
-
-`sha256` is used for generating fingerprints of firmware images
-
 # RabbitMQ
 
 ## Queues
@@ -14,9 +10,11 @@ reports : for relaying firmware reports back to the frontend
 
 username : `broker` password : `xl65x7jhacv`
 
+Change if not used locally
+
 # JSON Schemas
 
-## Report
+## Report structure
 ```
 {
   hash: "112233445566778899aa...",
@@ -43,14 +41,18 @@ username : `broker` password : `xl65x7jhacv`
 
 ## Severity
 
-The differnt severities that should be in the JSON are as follows:
+The different severities that should be in the JSON are as follows:
 
 * `"info"` : For informational findings. Colored blue on the frontend
 * `"warning"`: For findings that are bad but not critical. Colored yellow on the frontend
 * `"danger"` : For critical findings. Colored red on the frontend
 
+# Misc
 
-# Analysis
+`sha256` is used for generating fingerprints of firmware images
+
+
+# Potendial analysis modules
 General:
 
 http://pmja.com.pl/iotsr.pdf (IoTInspector report)
@@ -73,9 +75,23 @@ https://github.com/ajinabraham/NodeJsScan
 
 C:
 
+# Related work / Resources
+https://github.com/attify/firmware-analysis-toolkit
 
+https://github.com/misterch0c/firminator_backend
 
-# Images
+http://firmware.re/
+
+https://www.iot-inspector.com/
+
+https://firmalyzer.com/
+
+https://github.com/mre/awesome-static-analysis
+
+# Example firmware images
 
 http://www.bluesound.com/wp-content/uploads/2018/04/V510_usb_stick_2.16.9.zip
+
 https://www.dwheeler.com/flawfinder/
+
+https://kb.netgear.com/31417/D6000-Firmware-Version-1-0-0-61
