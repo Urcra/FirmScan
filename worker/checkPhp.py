@@ -7,10 +7,8 @@ struct = {
     'language': 'PHP',
     'findings': []
 }
-
 # Get php-reaper response
-#resp, error = subprocess.Popen('php ./analysis/php-reaper/php-reaper.php -d ./', shell=True).communicate()
-resp = "a\na"
+resp, error = subprocess.Popen('php ./analysis/php-reaper/php-reaper.php -d ./', shell=True).communicate()
 resp = resp.split("\n")
 # Parse response
 i = 0
@@ -26,5 +24,5 @@ while i < len(resp):
             i += 1
         finding['text'] = 'Line(s): ' + ', '.join(lines)
         struct['findings'].append(finding)
-print(json.dumps(struct))
+print(struct)
 

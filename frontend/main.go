@@ -31,6 +31,7 @@ type analysisItem struct {
 	ILength          int
 	WLength          int
 	DLength          int
+	Show             string
 	AnalysisFindings []analysisFindings `json:"findings"`
 }
 
@@ -166,6 +167,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 				jsonreport.AnalysisItem[i].ILength = 0
 				jsonreport.AnalysisItem[i].WLength = 0
 				jsonreport.AnalysisItem[i].DLength = 0
+				jsonreport.AnalysisItem[i].Show = ""
 				for _, finding := range item.AnalysisFindings {
 					if finding.Severity == "warning" {
 						jsonreport.AnalysisItem[i].WLength++
@@ -176,6 +178,9 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 					if finding.Severity == "info" {
 						jsonreport.AnalysisItem[i].ILength++
 					}
+				}
+				if len(item.AnalysisFindings) != 0 {
+					jsonreport.AnalysisItem[i].Show = "show"
 				}
 			}
 
