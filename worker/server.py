@@ -143,6 +143,8 @@ class Analyser:
                 for pattern in patterns:
                     if pattern in path:
                         print('found possible hardcoded key in %s' % path)
+                        if not os.path.isfile(path):
+                            continue
                         with open(path, 'r') as f:
                             text = 'Hardcoded key detected (possible backdoor)\n\n'
                             findings.append({
