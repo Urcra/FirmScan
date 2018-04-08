@@ -52,7 +52,7 @@ The different severities that should be in the JSON are as follows:
 `sha256` is used for generating fingerprints of firmware images
 
 
-# Potendial analysis modules
+# Potential analysis modules
 General:
 
 http://pmja.com.pl/iotsr.pdf (IoTInspector report)
