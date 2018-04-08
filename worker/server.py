@@ -99,8 +99,33 @@ class Analyser:
         self.path = path
 
     def generate_report(self):
-        return [self.key_files(), self.key_strings()]
+        return [self.key_files(), self.key_strings(), self.check_php()]
 
+    def check_php(self):
+        struct = {
+            'category': 'SQL injection',
+            'name': 'SQL injection in PHP',
+            'language': 'PHP',
+            'findings': []
+        }
+        # Get php-reaper response
+        print(self.path)
+        resp, error = subprocess.Popen('/usr/bin/php --help')
+        #resp, error = subprocess.Popen('/usr/bin/php ./analysis/php-reaper/php-reaper.php -d %s' % self.path).communicate()
+        resp = resp.split("\n")
+        # Parse response
+        i = 0
+        while i < len(resp):
+            if resp[i].startWith("Potential SQL injections "):
+                finding = {'severity': 'warning', 'file': resp[i].split("in file ")[1], 'text': ''}
+                i += 1
+                lines = []
+                while i < len(resp) & resp[i] & (not resp[i].startWith("Potential SQL injections ")):
+                    lines.append(resp[i].split(" ")[1].trim())
+                    i += 1
+                finding['text'] = 'Line(s): ' + ', '.join(lines)
+                struct['findings'].append(finding)
+        return struct
 
     def key_files(self):
         patterns =[
@@ -117,7 +142,7 @@ class Analyser:
                 path   = os.path.join(dirpath, name)
                 for pattern in patterns:
                     if pattern in path:
-                        print 'found possible hardcoded key in %s' % path
+                        print('found possible hardcoded key in %s' % path)
                         with open(path, 'r') as f:
                             text = 'Hardcoded key detected (possible backdoor)\n\n'
                             findings.append({
@@ -133,7 +158,7 @@ class Analyser:
             'findings': findings
         }
 
-        print 'processed %d files' % files
+        print('processed %d files' % files)
 
         return res
 
@@ -167,7 +192,7 @@ class Analyser:
 
                 for rex in private_keys:
                     for key in rex.findall(raw):
-                        print 'private key found in %s' % path
+                        print('private key found in %s' % path)
                         text = ''
                         text += 'Private key detected\n\n'
                         text += key
@@ -179,7 +204,7 @@ class Analyser:
 
                 for rex in public_keys:
                     for key in rex.findall(raw):
-                        print 'public key found in %s' % path
+                        print('public key found in %s' % path)
                         text = ''
                         text += 'Public key detected\n\n'
                         text += key
@@ -197,7 +222,7 @@ class Analyser:
             'findings': findings
         }
 
-        print 'processed %d files' % files
+        print('processed %d files' % files)
 
         return res
 
